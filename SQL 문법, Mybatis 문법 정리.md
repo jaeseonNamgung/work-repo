@@ -84,3 +84,7 @@ MyBatis의 `resultMap`에서 **`javaType`을 지정**하면 MyBatis가 알맞은
 
 - `SYSTIMESTAMP`는 **Oracle**의 함수로, 시스템의 **현재 타임스탬프**를 반환한다.
 - 이 타임스탬프는 **타임존을 포함한** 값으로 반환된다. 따라서 Oracle DB에서 **서버의 타임존**을 기준으로 값을 반환한다.
+- 
+# Mybatis Date, LocalDateTime 지원 여부
+- Mybatis 3.3.4 이후 버전 부터 Date, LocalDateTime 을 지원한다
+- Mybatis 3.3.4 이전 버전은 직접 TypeHandler 구현이 필요하다.
