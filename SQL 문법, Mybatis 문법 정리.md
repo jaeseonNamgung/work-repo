@@ -88,3 +88,44 @@ MyBatis의 `resultMap`에서 **`javaType`을 지정**하면 MyBatis가 알맞은
 # Mybatis Date, LocalDateTime 지원 여부
 - Mybatis 3.3.4 이후 버전 부터 Date, LocalDateTime 을 지원한다
 - Mybatis 3.3.4 이전 버전은 직접 TypeHandler 구현이 필요하다.
+
+# JDBC Type 오류
+
+```bash
+org.mybatis.spring.MyBatisSystemException: nested exception is 
+org.apache.ibatis.type.TypeException: Could not set parameters for mapping: 
+ParameterMapping{property='address', mode=IN, javaType=class java.lang.Object, 
+jdbcType=null, numericScale=null, resultMapId='null', 
+jdbcTypeName='null', expression='null'}. 
+
+Cause: org.apache.ibatis.type.TypeException: 
+Error setting null for parameter #6 with JdbcType OTHER . 
+
+Try setting a different JdbcType for this parameter or 
+a different jdbcTypeForNull configuration property. 
+
+Cause: java.sql.SQLException: 부적합한 열 유형: 1111
+```
+
+이 오류는 Null 값을 입력하면서 JdbcType을 다른 것으로 지정했기 때문에 **org.apache.ibatis.type.TypeException** 예외가 발생한 것이다.
+
+### 해결 방법
+
+파라미터에 다른 JdbcType을 설정하거나, Configuration 속성에 jdbcTypeForNull을 설정하면 된다.
+
+1. 해당 컬럼에 JDBC Type 명시
+
+```sql
+<insert id="insertData">
+    INSERT INTO mytable (컬럼명)
+    VALUE(#{컬럼명, jdbcType=컬럼_데이터타입})
+</insert>
+```
+
+1. **mybatis 설정 파일에 Null 처리를 하도록 명시**
+
+```sql
+ <settings>
+     <setting name="jdbcTypeForNull" value="NULL" />
+ </settings>
+```
