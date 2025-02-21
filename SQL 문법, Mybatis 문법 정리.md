@@ -129,3 +129,40 @@ Cause: java.sql.SQLException: 부적합한 열 유형: 1111
      <setting name="jdbcTypeForNull" value="NULL" />
  </settings>
 ```
+# **SqlSessionFactory**
+
+SqlSessionFactory는 데이터베이스와의 연결과 SQL의 실행에 대한 모든 것을 가진 가장 중요한 객체다.
+
+이 객체가 DataSource를 참조하여 MyBatis와 Mysql 서버를 연동시켜준다.
+
+SqlSessionFactory를 생성해주는 SqlSessionFactoryBean 객체를 먼저 설정하여야 한다.
+
+root-context.xml
+
+```sql
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource"></property>
+</bean>
+```
+
+# Mybatis Transaction
+
+공식 문서 마이바티스 스프링 연동모듈을 사용하는 중요한 이유중 하나는 마이바티스가 스프링 트랜잭션에 자연스럽게 연동될수 있다는 것이다. 마이바티스에 종속되는 새로운 트랜잭션 관리를 만드는 것보다는 마이바티스 스프링 연동모듈이 스프링의 `DataSourceTransactionManager`과 융합되는 것이 좋다. 스프링 트랜잭션 관리자를 한번 설정하면, 대개의 경우처럼 스프링에서 트랜잭션을 설정할 수 있다. `@Transactional` 애노테이션과 AOP스타일의 설정 모두 지원한다. 하나의 `SqlSession`객체가 생성되고 트랜잭션이 동작하는 동안 지속적으로 사용될것이다. 세션은 트랜잭션이 완료되면 적절히 커밋이 되거나 롤백될것이다. 마이바티스 스프링 연동모듈은 한번 셋업되면 트랜잭션을 투명하게 관리한다. DAO클래스에 어떠한 추가적인 코드를 넣을 필요가 없다.
+
+## Transaction **설정**
+
+스프링 트랜잭션을 가능하게 하려면, 스프링 설정파일에 `DataSourceTransactionManager`를 생성해줘야 한다.
+
+```java
+@Configuration
+public class DataSourceConfig {
+  @Bean
+  public DataSourceTransactionManager transactionManager() {
+    return new DataSourceTransactionManager(dataSource());
+  }
+}
+```
+
+명시된 `DataSource`는 스프링을 사용할때 일반적으로 사용한다면 어떠한 JDBC `DataSource`도 될수 있다. JNDI룩업을 통해 얻어진 `DataSource`뿐 아니라 커넥션 풀링 기능도 포함한다.
+
+트랜잭션 관리자에 명시된 `DataSource`가 `SqlSessionFactoryBean`을 생성할때 사용된 것과 **반드시** 동일한 것이어야 한다.  그렇지 않으면 트랜잭션 관리가 제대로 되지 않는다.
